@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 
 namespace MegaAmsCoreApi.Services
 {
@@ -14,10 +15,11 @@ namespace MegaAmsCoreApi.Services
     {
         private readonly IConfiguration _config;
         private string Connectionstring = "MegaStudyConnection";
-
-        public Dapperr(IConfiguration config)
+        private readonly ILogger<Dapperr> _logger;
+        public Dapperr(IConfiguration config, ILogger<Dapperr> logger)
         {
             _config = config;
+            _logger = logger;
         }
 
         public void Dispose()
@@ -94,6 +96,7 @@ namespace MegaAmsCoreApi.Services
                 try
                 {
                     result = db.Query<T>(sp, parms, commandType: commandType, transaction: tran).FirstOrDefault();
+                    _logger.LogInformation(result.ToString());
                     tran.Commit();
                 }
                 catch (Exception ex)
@@ -104,6 +107,8 @@ namespace MegaAmsCoreApi.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.ToString());
+                _logger.LogWarning("데이터 수정 문제 발생");
                 throw ex;
             }
             finally
@@ -128,6 +133,7 @@ namespace MegaAmsCoreApi.Services
                 try
                 {
                     result = db.Query<T>(sp, parms, commandType: commandType, transaction: tran).FirstOrDefault();
+                   _logger.LogInformation(result.ToString());
                     tran.Commit();
                 }
                 catch (Exception ex)

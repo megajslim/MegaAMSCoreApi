@@ -164,5 +164,32 @@ namespace MegaAmsCoreApi.Controllers
             dto.errMsg = "success";
             return dto;
         }
+
+        [HttpPut(nameof(Update))]
+        public async Task<ResultDTO> Update(TeamSugi data)
+        {
+            var dbPara = new DynamicParameters();
+            //dbPara.Add("Seq", data.Seq, DbType.Int32);  
+            //dbPara.Add("S_CONTENT", data.S_CONTENT, DbType.String);  
+
+            var result = await Task.FromResult(_dapper.Update<int>($"UPDATE MG_BOARD_SUGI SET S_CONTENT = '{data.S_CONTENT}' WHERE SEQ = {data.Seq}", null, CommandType.Text));
+
+            ResultDTO dto = new ResultDTO();
+            if (result != 0)
+            {
+                dto.errCode = -300;
+                dto.errMsg = "데이터 수정에 문제가 발생되었습니다.";
+
+                logStr = string.Format("{0} {1} Delete {2} ", dto.errCode, dto.errMsg,  result);
+                _logger.LogWarning(logStr);
+
+                return dto;
+
+            }
+
+            dto.errCode = 100;
+            dto.errMsg = "success";
+            return dto;
+        }
     }
 }
